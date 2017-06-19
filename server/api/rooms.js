@@ -1,6 +1,6 @@
 const router = require('express').Router();
 const Game = require('../../src/Game.js');
-module.exports = router;
+
 
 
 const rooms = [
@@ -14,18 +14,20 @@ const rooms = [
   }
 ];
 
-router.param('roomId', (req, res, next, id) => {
-  req.room = rooms[+id];
+module.exports = {router, rooms};
+
+router.param('roomId', (req, res, next, roomId) => {
+  req.room = rooms[+roomId];
   next();
 });
 
 router.post('/game/:roomId', (req, res, next) => {
-  console.log(req.room);
   const room = req.room;
   if (!room.game){
     room.game = new Game(room.players);
   }
-  res.send(room.game.start());
+  room.game.start();
+  res.sendStatus(204);
 });
 
 router.get('/', (req, res, next) => {

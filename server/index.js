@@ -6,14 +6,18 @@ const session = require('express-session');
 const passport = require('passport');
 const PORT = process.env.PORT || 8080;
 const app = express();
-const axios = require('axios');
+
+const rooms = require('./api/rooms');
+
 module.exports = app;
 
 const createApp = () => app
   .use(morgan('dev'))
   .use(express.static(path.join(__dirname, '..', 'public')))
+  .use(express.static(path.join(__dirname, '..', 'public/cards')))
   .use(bodyParser.json())
   .use(bodyParser.urlencoded({ extended: true }))
+  .use('/api/rooms', rooms.router)
   .use('/api', require('./api'))
   .use((req, res, next) =>
     path.extname(req.path).length > 0 ? res.status(404).send('Not found') : next())
@@ -50,8 +54,11 @@ io.on('connection', (socket) => {
 
   socket.on('startRound', data => {
     const {roomId} = data;
-    // axios.get(`/api/rooms/game/${roomId}`);
-    io.sockets.in(roomId).emit('startRound', {cards: 'dank'});
+    const {players, game} = rooms.rooms[roomId];
+    const deck = game.deck.split();
+    players.forEach((player, i) => {
+      io.sockets.connected[player.socketId].emit('startRound', deck[i]);
+    });
     console.log('Starting Round');
   });
 

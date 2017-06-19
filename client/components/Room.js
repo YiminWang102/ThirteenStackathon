@@ -29,21 +29,22 @@ class Room extends React.Component {
 
     socket.on('startRound', payload => {
       // const {roomId} = props.routeParams;
-      const {cards} = payload;
-      console.log('server broadcasted to room to startRound');
+      const cards = payload;
+      console.log('server broadcasted to room', payload.roomId, 'to startRound');
+      console.log(payload);
       this.setState({
-        // gameState: 1,
+        gameState: 1,
         cards
       })
 
-    });
+    })
   }
 
   render () {
     const self = this;
     const roomId = this.props.routeParams.roomId;
     const {players, leader, gameState} = this.state;
-    const {chooseNickname, nickname, children, startRound} = this.props;
+    const {chooseNickname, nickname, startRound} = this.props;
     return (
         !gameState ?
           !nickname ?
@@ -70,7 +71,7 @@ class Room extends React.Component {
             }
           </div>
         :
-        <GamePage />
+        <GamePage {...this.state}/>
     );
   }
 
@@ -126,8 +127,7 @@ const mapDispatch = dispatch => ({
   startRound: (self, roomId) => {
     axios.post(`/api/rooms/game/${roomId}`)
       .then(res => res.data)
-      .then(cardArr => {
-        console.log('got cards:', cardArr, '\nemitting startRound');
+      .then(() => {
         socket.emit('startRound', {roomId});
       })
     // self.setState({gameState: 1});
