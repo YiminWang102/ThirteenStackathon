@@ -6,7 +6,7 @@ const HandRow = props => {
   return (
     <div>
       <container className="container">
-      {props.cards.map(card => <Card cardToBeSwapped={props.cardToBeSwapped} swap={props.swap} key={card.value + card.suit} card={card} />)}
+      {props.cards.map(card => <Card scale="2" cardToBeSwapped={props.cardToBeSwapped} swap={props.swap} key={card.value + card.suit} card={card} />)}
       </container>
     </div>
   )

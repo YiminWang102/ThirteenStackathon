@@ -4,7 +4,7 @@ import { connect } from 'react-redux';
 import { Link } from 'react-router';
 
 const Card = props => {
-  const {card, cardToBeSwapped} = props;
+  const {card, cardToBeSwapped, scale} = props;
   const cardMap = [
     2,3,4,5,6,7,8,9,10,'jack','queen','king','ace'
   ];
@@ -13,7 +13,7 @@ const Card = props => {
   else name = 'blank.png';
   const isSelected = card && cardToBeSwapped && card.value === cardToBeSwapped.value && card.suit === cardToBeSwapped.suit;
   return (
-    <img className={ isSelected ? "card selected" : "card"} value={name} onClick={() => {props.swap(card)}} display="inline-block" src={`/${name}`} width={(100/13 * 2) + '%'} />
+    <img className={ isSelected ? "card selected" : "card"} value={name} onClick={() => {props.swap(card)}} display="inline-block" src={`/${name}`} width={(100/13 * (+scale)) + '%'} />
   );
 }
 
