@@ -47,9 +47,6 @@ class PlayRoom extends React.Component {
   }
 }
 
-// const io = require('socket.io-client');
-// const socket = io();
-
 const mapState = store => ({
   nickname: store.player.nickname,
 });

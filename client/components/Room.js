@@ -15,7 +15,8 @@ class Room extends React.Component {
       leader: {},
       players: [],
       gameState: 0,
-      cards: []
+      cards: [],
+      scores: [0,0,0,0]
     };
 
     socket.on('roomUpdate', payload => {
@@ -31,7 +32,7 @@ class Room extends React.Component {
       // const {roomId} = props.routeParams;
       const cards = payload;
       console.log('server broadcasted to room', payload.roomId, 'to startRound');
-      console.log(payload);
+      console.log(cards);
       this.setState({
         gameState: 1,
         cards
@@ -43,8 +44,8 @@ class Room extends React.Component {
   render () {
     const self = this;
     const roomId = this.props.routeParams.roomId;
-    const {players, leader, gameState} = this.state;
-    const {chooseNickname, nickname, startRound} = this.props;
+    const {players, leader, gameState, scores, cards} = this.state;
+    const {chooseNickname, nickname, startRound, submitHand} = this.props;
     return (
         !gameState ?
           !nickname ?
@@ -55,12 +56,14 @@ class Room extends React.Component {
           </form>
           :
           <div>
-            <h1>THIS IS THE ROOM</h1>
-            <h2>THIS IS THE LEADER: {leader.nickname} </h2>
-            <h2>THESE ARE THE PLAYERS: </h2>
+            <h1>LOBBY #{roomId}</h1>
+            <h2>HOST: <strong>{leader.nickname}</strong> </h2>
+            <h2>PLAYERS: </h2>
             {
-              players.map( player => {
-                return <h3 key={player.nickname}>{player.nickname}</h3>
+              players.map( (player, i) => {
+                return (
+                  <h3 key={player.nickname}><strong>{player.nickname}</strong> with score: <strong>{scores[i]}</strong></h3>
+                )
               })
             }
             {
@@ -71,7 +74,7 @@ class Room extends React.Component {
             }
           </div>
         :
-        <GamePage {...this.state}/>
+        <GamePage cards={cards} submitHand={(hand) => submitHand(hand, roomId)} />
     );
   }
 
@@ -112,7 +115,7 @@ const mapDispatch = dispatch => ({
   },
   chooseNickname: event => {
     event.preventDefault();
-    const nickname = event.target.nickname.value;
+    const nickname = event.target.nickname.value.toUpperCase();
     const roomId = event.target.button.value;
     const player = {nickname, socketId: socket.id};
     dispatch(setPlayer(player));
@@ -131,6 +134,10 @@ const mapDispatch = dispatch => ({
         socket.emit('startRound', {roomId});
       })
     // self.setState({gameState: 1});
+  },
+  submitHand: (hand, roomId) => {
+    console.log('submitting hand')
+    socket.emit('submit hand', {hand, roomId});
   }
 });
 

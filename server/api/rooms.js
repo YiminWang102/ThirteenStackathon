@@ -3,16 +3,7 @@ const Game = require('../../src/Game.js');
 
 
 
-const rooms = [
-  {
-    leader: {
-      nickname: 'dankmeme123',
-      socketId: 'abcdefg'
-    },
-    players: [],
-    game: null
-  }
-];
+const rooms = [];
 
 module.exports = {router, rooms};
 
@@ -37,7 +28,10 @@ router.get('/', (req, res, next) => {
 router.post('/', (req, res, next) => {
   rooms.push({
     leader: undefined,
-    players: []
+    players: [],
+    game: null,
+    hands: [null,null,null,null],
+    scores: [0,0,0,0]
   });
   res.send({
     room: rooms[rooms.length-1],

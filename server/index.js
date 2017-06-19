@@ -6,6 +6,9 @@ const session = require('express-session');
 const passport = require('passport');
 const PORT = process.env.PORT || 8080;
 const app = express();
+const Card = require('../src/Card');
+const Hand = require('../src/Hand');
+const Thirteen = require('../src/ThirteenAi');
 
 const rooms = require('./api/rooms');
 
@@ -34,8 +37,12 @@ const io = require('socket.io')(server);
 io.on('connection', (socket) => {
   console.log('a user connected');
 
-  socket.on('disconnect', () => {
+  socket.on('disconnect', (data) => {
     console.log('user disconnected');
+    const {roomId, nickname} = data;
+    console.log('player with nickname', nickname, 'is leaving room number', roomId);
+    socket.leave(roomId);
+    io.sockets.in(roomId).emit('roomUpdate', {roomId});
   });
 
   socket.on('room', data => {
@@ -60,6 +67,24 @@ io.on('connection', (socket) => {
       io.sockets.connected[player.socketId].emit('startRound', deck[i]);
     });
     console.log('Starting Round');
+  });
+
+  socket.on('submit hand', data => {
+    const {roomId, hand} = data;
+    console.log('hand submitted by', socket.id);
+    const {players, game, scores, hands} = rooms.rooms[roomId];
+    const newHand = Thirteen.prototype.convert(hand.map(card => Card.prototype.toVSFormat.call(card)).join(''));
+
+    players.forEach((player, i) => {
+      if (player.socketId === socket.id) hands[i] = newHand;
+    });
+    if (hands.every(hand => hand)) {
+      game.updateScore(game.calculateScore(hands)).forEach((score, i) => scores[i] = score);
+      console.log(scores);
+      rooms.rooms[roomId].gameState = 0;
+      io.sockets.in(roomId).emit('roomUpdate', {roomId});
+    }
+
   });
 
 });

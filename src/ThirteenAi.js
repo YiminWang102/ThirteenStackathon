@@ -52,9 +52,6 @@ class ThirteenAi {
                         temp2.splice(y-3,1);
                         temp2.splice(z-4,1);
 
-                        if(!printed) console.log([temp2, a2, a1].map(dank => dank.toString()));
-                        printed = true;
-
                         let tMid = new Hand(a2);
 
                         let tTop = new Hand(temp2);
