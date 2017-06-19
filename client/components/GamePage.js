@@ -1,5 +1,6 @@
 import React from 'react';
 import Card from './Card';
+import axios from 'axios';
 
 const HandRow = props => {
   return (
@@ -27,6 +28,7 @@ class GamePage extends React.Component {
     this.swap = this.swap.bind(this);
     this.canSubmit = this.canSubmit.bind(this);
     this.submitHand = this.submitHand.bind(this);
+    this.generateHand = this.generateHand.bind(this);
   }
 
   swap(cardToBeSwapped) {
@@ -56,6 +58,20 @@ class GamePage extends React.Component {
     else this.setState({error: "PLEASE SUBMIT A FULL HAND"})
   }
 
+  generateHand(){
+    axios.post('/api/rooms/help', this.props.cards)
+    .then(res => res.data)
+    .then(cards => {
+      console.log(cards);
+      //this.props.cards = this.props.cards.map((card, i) => ({value: null, suit: 'temp' + i}));
+      cards.forEach((card, i) => {
+        this.props.cards[i]= this.state.cardsToBeSubmitted[i]
+        this.state.cardsToBeSubmitted[i]=card;
+      })
+      this.setState({cardsToBeSubmitted: cards})
+    })
+  }
+
   render(){
     const {cardsToBeSubmitted, error, message} = this.state;
     return (
@@ -68,8 +84,10 @@ class GamePage extends React.Component {
         </div>
         <div className="container col-md-12">
           {message ? null :
-            <button onClick={this.submitHand} display="inline" className="btn btn-primary">Submit Hand</button>
-          }
+              <div>
+                <button onClick={this.generateHand} display="inline" className="btn btn-primary">Build My Hand For Me</button>
+                <button onClick={this.submitHand} display="inline" className="btn btn-primary">Submit Hand</button>
+              </div>}
         </div>
         <container className="container col-md-6">
           <HandRow cards={this.props.cards.slice(0,3)} cardToBeSwapped={this.state.cardToBeSwapped} swap={this.swap}/>

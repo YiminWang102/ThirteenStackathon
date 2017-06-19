@@ -1,5 +1,7 @@
 const router = require('express').Router();
 const Game = require('../../src/Game.js');
+const Card = require('../../src/Card.js');
+const Thirteen = require('../../src/ThirteenAi');
 
 
 
@@ -10,6 +12,14 @@ module.exports = {router, rooms};
 router.param('roomId', (req, res, next, roomId) => {
   req.room = rooms[+roomId];
   next();
+});
+
+router.post('/help', (req, res, next) => {
+  const newHand = Thirteen.prototype.convert(req.body.map(card => Card.prototype.toVSFormat.call(card)).join(''));
+  const builtHands = Thirteen.prototype.play(newHand);
+  const cards = [];
+  builtHands.forEach(hand => hand.hand.forEach(card => cards.push(card)));
+  res.send(cards);
 });
 
 router.post('/game/:roomId', (req, res, next) => {
