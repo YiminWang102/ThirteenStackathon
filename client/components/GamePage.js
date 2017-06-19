@@ -1,16 +1,6 @@
 import React from 'react';
 import Card from './Card';
 
-const fakeCards = [];
-const vals = [2,3,4,5]
-const suits = ['HEARTS', 'CLUBS', 'SPADES','DIAMONDS']
-for(let i = 0; i < suits.length; i++) {
-  for(let j = 2; j < 7; j++)
-    fakeCards.push({
-      value: j,
-      suit: suits[i]
-    })
-}
 const HandRow = props => {
   return (
     <div>

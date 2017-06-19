@@ -21,6 +21,15 @@ router.post('/game/:roomId', (req, res, next) => {
   res.sendStatus(204);
 });
 
+router.post('/game/:roomId/ai', (req, res, next) => {
+  const room = req.room;
+  room.players.push({
+    nickname: "MR. ROBOTO #"+room.players.length,
+    socketId: "AI"
+  });
+  res.send(room);
+});
+
 router.get('/', (req, res, next) => {
   res.send(rooms);
 });

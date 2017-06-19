@@ -21,7 +21,7 @@ class PlayRoom extends React.Component {
     const {rooms} = this.state;
     return (
       <div>
-        <h1>THIS IS THE PLAYROOM</h1>
+        <h1>PLAY AGAINST OTHER PEOPLE</h1>
         {
           <div>
             {

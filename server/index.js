@@ -64,7 +64,7 @@ io.on('connection', (socket) => {
     const {players, game} = rooms.rooms[roomId];
     const deck = game.deck.split();
     players.forEach((player, i) => {
-      io.sockets.connected[player.socketId].emit('startRound', deck[i]);
+      if(player.socketId !== 'AI') io.sockets.connected[player.socketId].emit('startRound', deck[i]);
     });
     console.log('Starting Round');
   });
@@ -77,11 +77,16 @@ io.on('connection', (socket) => {
 
     players.forEach((player, i) => {
       if (player.socketId === socket.id) hands[i] = newHand;
+      else if(player.socketId === 'AI'){
+        hands[i] = game.deck.split()[i];
+      }
     });
     if (hands.every(hand => hand)) {
-      game.updateScore(game.calculateScore(hands)).forEach((score, i) => scores[i] = score);
+      const change = game.calculateScore(hands);
+      game.updateScore(change).forEach((score, i) => scores[i] = score);
       console.log(scores);
       rooms.rooms[roomId].gameState = 0;
+      rooms.rooms[roomId].change = change;
       io.sockets.in(roomId).emit('roomUpdate', {roomId});
     }
 

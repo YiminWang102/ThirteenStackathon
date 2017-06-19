@@ -16,6 +16,7 @@ class Room extends React.Component {
       players: [],
       gameState: 0,
       cards: [],
+      change: [],
       scores: [0,0,0,0]
     };
 
@@ -44,37 +45,40 @@ class Room extends React.Component {
   render () {
     const self = this;
     const roomId = this.props.routeParams.roomId;
-    const {players, leader, gameState, scores, cards} = this.state;
-    const {chooseNickname, nickname, startRound, submitHand} = this.props;
+    const {players, leader, gameState, scores, cards, change} = this.state;
+    const {chooseNickname, nickname, startRound, submitHand, addAI} = this.props;
     return (
         !gameState ?
           !nickname ?
-          <form onSubmit={chooseNickname}>
-            Choose a nickname:
-            <input type="text" name="nickname"/>
-            <button type="submit" name="button" value={this.props.routeParams.roomId} className="btn btn-default"> Select </button>
-          </form>
+            <form onSubmit={chooseNickname}>
+              Choose a nickname:
+              <input type="text" name="nickname"/>
+              <button type="submit" name="button" value={this.props.routeParams.roomId} className="btn btn-default"> Select </button>
+            </form>
           :
-          <div>
-            <h1>LOBBY #{roomId}</h1>
-            <h2>HOST: <strong>{leader.nickname}</strong> </h2>
-            <h2>PLAYERS: </h2>
-            {
-              players.map( (player, i) => {
-                return (
-                  <h3 key={player.nickname}><strong>{player.nickname}</strong> with score: <strong>{scores[i]}</strong></h3>
-                )
-              })
-            }
-            {
-              /*players.length === 3 ?*/
-              leader.nickname === nickname?
-              <button onClick={() => {startRound(self, roomId)}} type="button" name="play" className="btn btn-default">Start Round!</button>
-              : null
-            }
-          </div>
-        :
-        <GamePage cards={cards} submitHand={(hand) => submitHand(hand, roomId)} />
+            <div>
+              <h1>LOBBY #{roomId}</h1>
+              <h2>HOST: <strong>{leader.nickname}</strong> </h2>
+                {leader.nickname === nickname ?
+                <div>
+                  <button onClick={() => addAI(self, roomId)} type="button" name="play" className="btn btn-default">Add A COMPUTER OPPONENT!</button>
+                  <button onClick={() => {startRound(self, roomId)}} type="button" name="play" className="btn btn-default">Start Round!</button>
+                </div>
+                : null}
+              <h2>PLAYERS: </h2>
+              {
+                players.map( (player, i) => {
+                  return (
+                    <div key={player.nickname}>
+                      <h3 ><strong>{player.nickname}</strong> with score: <strong>{scores[i]} &nbsp;</strong></h3>
+                      {change[i] ? <h3 className={change[i] < 0 ? 'red' : 'green'}> ({change[i]})</h3> : null}
+                    </div>
+                  )
+                })
+              }
+            </div>
+          :
+          <GamePage cards={cards} submitHand={(hand) => submitHand(hand, roomId)} />
     );
   }
 
@@ -138,6 +142,11 @@ const mapDispatch = dispatch => ({
   submitHand: (hand, roomId) => {
     console.log('submitting hand')
     socket.emit('submit hand', {hand, roomId});
+  },
+  addAI: (self, roomId) => {
+    return axios.post(`/api/rooms/game/${roomId}/ai`)
+      .then(res => res.data)
+      .then(room => self.setState(room));
   }
 });
 
