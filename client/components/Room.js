@@ -4,6 +4,7 @@ import { connect } from 'react-redux';
 import { Link, browserHistory } from 'react-router';
 import axios from 'axios';
 
+import GamePage from './GamePage';
 import {setPlayer} from '../reducer/player';
 
 
@@ -13,7 +14,8 @@ class Room extends React.Component {
     this.state = {
       leader: {},
       players: [],
-      gameState: 0
+      gameState: 0,
+      cards: []
     };
 
     socket.on('roomUpdate', payload => {
@@ -24,37 +26,51 @@ class Room extends React.Component {
           this.setState(room);
         })
     });
+
+    socket.on('startRound', payload => {
+      // const {roomId} = props.routeParams;
+      const {cards} = payload;
+      console.log('server broadcasted to room to startRound');
+      this.setState({
+        // gameState: 1,
+        cards
+      })
+
+    });
   }
 
   render () {
-    const {players, leader} = this.state;
-    const {chooseNickname, nickname, children} = this.props;
-    const {roomId} = this.props.routeParams;
+    const self = this;
+    const roomId = this.props.routeParams.roomId;
+    const {players, leader, gameState} = this.state;
+    const {chooseNickname, nickname, children, startRound} = this.props;
     return (
-        !nickname ?
-        <form onSubmit={chooseNickname}>
-          Choose a nickname:
-          <input type="text" name="nickname"/>
-          <button type="submit" name="button" value={this.props.routeParams.roomId} className="btn btn-default"> Select </button>
-        </form>
+        !gameState ?
+          !nickname ?
+          <form onSubmit={chooseNickname}>
+            Choose a nickname:
+            <input type="text" name="nickname"/>
+            <button type="submit" name="button" value={this.props.routeParams.roomId} className="btn btn-default"> Select </button>
+          </form>
+          :
+          <div>
+            <h1>THIS IS THE ROOM</h1>
+            <h2>THIS IS THE LEADER: {leader.nickname} </h2>
+            <h2>THESE ARE THE PLAYERS: </h2>
+            {
+              players.map( player => {
+                return <h3 key={player.nickname}>{player.nickname}</h3>
+              })
+            }
+            {
+              /*players.length === 3 ?*/
+              leader.nickname === nickname?
+              <button onClick={() => {startRound(self, roomId)}} type="button" name="play" className="btn btn-default">Start Round!</button>
+              : null
+            }
+          </div>
         :
-        <div>
-          <h1>THIS IS THE ROOM</h1>
-          <h2>THIS IS THE LEADER: {leader.nickname} </h2>
-          <h2>THESE ARE THE PLAYERS: </h2>
-          {
-            players.map( player => {
-              return <h3 key={player.nickname}>{player.nickname}</h3>
-            })
-          }
-          {
-            /*players.length === 3 ?*/
-            leader.nickname === nickname?
-            <button onClick={() => {browserHistory(roomId)}} type="button" name="play" className="btn btn-default">Start Round!</button>
-            : null
-          }
-          { children }
-        </div>
+        <GamePage />
     );
   }
 
@@ -70,14 +86,9 @@ class Room extends React.Component {
     console.log('component unmounting');
     const {nickname} = this.props;
     const {roomId} = this.props.routeParams;
-    if(nickname) {
-      axios.delete(`/api/rooms/${roomId}/${nickname}`)
-        .then( () => {
-          socket.emit('leave room', {roomId, nickname});
-          this.props.resetNickname();
-        });
-    }
+    socket.emit('leave room', {roomId, nickname});
     socket.off();
+    if(nickname) axios.delete(`/api/rooms/${roomId}/${nickname}`);
   }
 }
 
@@ -112,9 +123,14 @@ const mapDispatch = dispatch => ({
         })
       });
   },
-  resetNickname: () => {dispatch(setPlayer({nickname: ''}))},
-  startRound: (self) => {
-    self.setState({gameState: 1});
+  startRound: (self, roomId) => {
+    axios.post(`/api/rooms/game/${roomId}`)
+      .then(res => res.data)
+      .then(cardArr => {
+        console.log('got cards:', cardArr, '\nemitting startRound');
+        socket.emit('startRound', {roomId});
+      })
+    // self.setState({gameState: 1});
   }
 });
 

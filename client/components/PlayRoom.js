@@ -41,6 +41,7 @@ class PlayRoom extends React.Component {
   componentDidMount(){
     this.props.getRooms()
       .then(rooms => {
+        this.props.resetNickname();
         this.setState({rooms})
       })
   }
@@ -62,7 +63,8 @@ const mapDispatch = dispatch => ({
         browserHistory.push(`/room/${roomInfo.id}`);
       })
       .catch(console.error.bind(console));
-  }
+  },
+  resetNickname: () => {dispatch(setPlayer({nickname: ''}))},
 
 });
 

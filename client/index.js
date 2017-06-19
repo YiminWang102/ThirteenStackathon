@@ -10,7 +10,6 @@ import HandBuilder from './components/HandBuilder';
 import Practice from './components/Practice';
 import PlayRoom from './components/PlayRoom';
 import Room from './components/Room';
-import Game from './components/Game';
 import axios from 'axios';
 
 ReactDOM.render(
@@ -20,9 +19,7 @@ ReactDOM.render(
       <Route path="/handbuilder" component={HandBuilder} />
       <Route path="/practice" component={Practice} />
       <Route path="/play" component={PlayRoom} />
-      <Route path="/room/:roomId" component={Room} >
-        <Route path="play" component={Game} />
-      </Route>
+      <Route path="/room/:roomId" component={Room} />
     </Router>
   </Provider>,
   document.getElementById('app')

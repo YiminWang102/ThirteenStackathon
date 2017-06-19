@@ -6,6 +6,7 @@ const session = require('express-session');
 const passport = require('passport');
 const PORT = process.env.PORT || 8080;
 const app = express();
+const axios = require('axios');
 module.exports = app;
 
 const createApp = () => app
@@ -28,7 +29,6 @@ const io = require('socket.io')(server);
 
 io.on('connection', (socket) => {
   console.log('a user connected');
-  console.log(socket.id);
 
   socket.on('disconnect', () => {
     console.log('user disconnected');
@@ -47,4 +47,12 @@ io.on('connection', (socket) => {
     socket.leave(roomId);
     io.sockets.in(roomId).emit('roomUpdate', {roomId});
   });
+
+  socket.on('startRound', data => {
+    const {roomId} = data;
+    // axios.get(`/api/rooms/game/${roomId}`);
+    io.sockets.in(roomId).emit('startRound', {cards: 'dank'});
+    console.log('Starting Round');
+  });
+
 });

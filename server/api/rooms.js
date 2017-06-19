@@ -9,13 +9,23 @@ const rooms = [
       nickname: 'dankmeme123',
       socketId: 'abcdefg'
     },
-    players: []
+    players: [],
+    game: null
   }
 ];
 
 router.param('roomId', (req, res, next, id) => {
   req.room = rooms[+id];
   next();
+});
+
+router.post('/game/:roomId', (req, res, next) => {
+  console.log(req.room);
+  const room = req.room;
+  if (!room.game){
+    room.game = new Game(room.players);
+  }
+  res.send(room.game.start());
 });
 
 router.get('/', (req, res, next) => {
@@ -42,7 +52,7 @@ router.put('/:roomId',(req, res, next) => {
   const room = req.room;
   if(player.nickname && player.socketId){
     if(!room.leader) room.leader = player;
-    else if(room.leader.nickname !== player.nickname) room.players.push(player);
+    room.players.push(player);
     res.send(room);
   }
   else res.sendStatus(204);
@@ -52,9 +62,12 @@ router.delete('/:roomId/:nickname', (req, res, next) => {
   const nickname = req.params.nickname;
   const room = req.room;
   console.log('removing', nickname, 'from room', req.params.roomId);
-  const newPlayers = room.players.filter(playerInRoom => {
-    return nickname !== playerInRoom.nickname;
-  });
-  room.players = newPlayers;
+  if (room.leader.nickname === nickname) rooms.splice(+req.params.roomId, 1);
+  else {
+    const newPlayers = room.players.filter(playerInRoom => {
+      return nickname !== playerInRoom.nickname;
+    });
+    room.players = newPlayers;
+  }
   res.sendStatus(204);
 });
