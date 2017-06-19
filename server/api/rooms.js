@@ -1,5 +1,7 @@
 const router = require('express').Router();
+const Game = require('../../src/Game.js');
 module.exports = router;
+
 
 const rooms = [
   {
@@ -21,10 +23,13 @@ router.get('/', (req, res, next) => {
 });
 
 router.post('/', (req, res, next) => {
-  const player = req.body.player;
   rooms.push({
-    leader: player,
+    leader: undefined,
     players: []
+  });
+  res.send({
+    room: rooms[rooms.length-1],
+    id: rooms.length-1
   });
 });
 
@@ -33,9 +38,23 @@ router.get('/:roomId', (req, res, next) => {
 });
 
 router.put('/:roomId',(req, res, next) => {
-  console.log(req.body);
   const player = req.body;
   const room = req.room;
-  room.players.push(player);
-  res.send(room);
+  if(player.nickname && player.socketId){
+    if(!room.leader) room.leader = player;
+    else if(room.leader.nickname !== player.nickname) room.players.push(player);
+    res.send(room);
+  }
+  else res.sendStatus(204);
+});
+
+router.delete('/:roomId/:nickname', (req, res, next) => {
+  const nickname = req.params.nickname;
+  const room = req.room;
+  console.log('removing', nickname, 'from room', req.params.roomId);
+  const newPlayers = room.players.filter(playerInRoom => {
+    return nickname !== playerInRoom.nickname;
+  });
+  room.players = newPlayers;
+  res.sendStatus(204);
 });

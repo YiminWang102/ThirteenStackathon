@@ -34,7 +34,17 @@ io.on('connection', (socket) => {
     console.log('user disconnected');
   });
 
-  socket.on('userName', function(name) {
-    console.log('got a new userName:', name);
+  socket.on('room', data => {
+    const {roomId, nickname} = data;
+    socket.join(roomId);
+    console.log(nickname, 'joined room number', roomId);
+    io.sockets.in(roomId).emit('roomUpdate', {roomId});
+  });
+
+  socket.on('leave room', data => {
+    const {roomId, nickname} = data;
+    console.log('player with nickname', nickname, 'is leaving room number', roomId);
+    socket.leave(roomId);
+    io.sockets.in(roomId).emit('roomUpdate', {roomId});
   });
 });

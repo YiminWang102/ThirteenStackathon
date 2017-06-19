@@ -3,7 +3,6 @@ const SET_SOCKETID = 'SET_SOCKETID';
 
 const defaultState = {
   nickname: '',
-  socketId: '',
   room: {}
 };
 
@@ -11,7 +10,6 @@ export const setNickname = nickname => ({ type: SET_NICKNAME, nickname });
 export const setSocketId = id => ({ type: SET_SOCKETID, id });
 export const setPlayer = player => dispatch => {
   dispatch(setNickname(player.nickname));
-  dispatch(setSocketId(player.socketId));
 };
 
 // export const setUsername = nickname => dispatch => {
