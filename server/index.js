@@ -72,13 +72,17 @@ io.on('connection', (socket) => {
   socket.on('submit hand', data => {
     const {roomId, hand} = data;
     console.log('hand submitted by', socket.id);
-    const {players, game, scores, hands} = rooms.rooms[roomId];
+    let {players, game, scores, hands} = rooms.rooms[roomId];
     const newHand = Thirteen.prototype.convert(hand.map(card => Card.prototype.toVSFormat.call(card)).join(''));
 
     players.forEach((player, i) => {
       if (player.socketId === socket.id) hands[i] = newHand;
       else if(player.socketId === 'AI'){
-        hands[i] = game.deck.split()[i];
+        const tempHand = Thirteen.prototype.play(game.deck.split()[i]);
+        const cards = [];
+        tempHand.forEach(hand => hand.hand.forEach(card => cards.push(card)));
+        hands[i] = cards;
+        // const builtHands = Thirteen.prototype.play(newHand);
       }
     });
     if (hands.every(hand => hand)) {
@@ -87,6 +91,7 @@ io.on('connection', (socket) => {
       console.log(scores);
       rooms.rooms[roomId].gameState = 0;
       rooms.rooms[roomId].change = change;
+      rooms.rooms[roomId].hands = [null,null,null,null];
       io.sockets.in(roomId).emit('roomUpdate', {roomId});
     }
 

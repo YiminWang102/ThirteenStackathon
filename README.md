@@ -1,37 +1,23 @@
-# Boilermaker
+# PlayThirteen
 
-*Good things come in pairs*
+This is a web application that allows you to play the card game Thirteen with your friends or against AI.
 
-Looking to mix up a backend with express/sequelize and a frontend with react/redux? That's `boilermaker`!
+Thirteen is a fairly straight-forward game, the rules are simple:
 
-Follow along with the workshop to make your own! This canonical version can serve as a reference, or a starting point all on its own.
+Each player is dealt thirteen cards (hence the name) and is to arrange them into 3 hands, a hand of 3 called your top, a hand of 5 called your middle, and another hand of 5 called your bottom. The only constraint is that your bottom hand has to be stronger than your middle hand which has to be stronger than your top hand.
+
+So for example Trips, Straight, Flush, would be a legal hand, but Trips, Two Pair, Straight, would not, since the trips on top is stronger than two pair in the middle.
+
+After everyone has finished arranging their hands, they compare their hands with everyone else's hands in the same position. The player with the winning hand is given a point and the player with the losing hand is deducted a point. In the case of a tie, zero points are awarded. This is done with every one and score is tallied after each round.
 
 ## Setup
 
-To use this boilerplate, you'll need to take the following steps:
+To run this program on your machine all you need to do is to install the dependencies:
 
 * `npm install`, or `yarn install` - whatever you're into
-* Create two postgres databases: `boilermaker` and `boilermaker-test`
-  * By default, running `npm test` will use `boilermaker-test`, while regular development uses `boilermaker`
-* Create a file called `secrets.js` in the project root
-  * This file is `.gitignore`'d, and will *only* be required in your *development* environment
-  * Its purpose is to attach the secret env variables that you'll use while developing
-  * However, it's **very** important that you **not** push it to Github! Otherwise, *prying eyes* will find your secret API keys!
-  * It might look like this:
-
-  ```
-    process.env.GOOGLE_CLIENT_ID = 'hush hush';
-    process.env.GOOGLE_CLIENT_SECRET = 'pretty secret';
-    process.env.GOOGLE_CALLBACK = '/auth/google/callback';
-  ```
-
-* To use OAuth with Google, complete the step above with a real client ID and client secret from Google
-  * You can get them here: https://console.developers.google.com/apis/credentials
 
 ## Start
 
-`npm start` will make great things happen!
+`npm start` will launch your server and compile your webpack file.
 
-If you want to run the server and/or webpack separately, you can also `npm run start-server` and `npm run build-client`.
-
-From there, just follow your bliss.
+Connect to the server, create a lobby and enjoy! Either play in a practice room, play against AI, or play agains friends!
