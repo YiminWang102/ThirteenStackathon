@@ -20,4 +20,4 @@ To run this program on your machine all you need to do is to install the depende
 
 `npm start` will launch your server and compile your webpack file.
 
-Connect to the server, create a lobby and enjoy! Either play in a practice room, play against AI, or play agains friends!
+Connect to the server, create a lobby and enjoy! Either play in a practice room, play against AI, or play against friends!
